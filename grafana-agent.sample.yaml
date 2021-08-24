@@ -1,0 +1,54 @@
+integrations:
+  node_exporter:
+    enabled: true
+  prometheus_remote_write:
+  - basic_auth:
+      password: <pass>
+      username: <user>
+    url: <prometheus_url>
+loki:
+  configs:
+  - clients:
+    - basic_auth:
+        password: <pass>
+        username: <user>
+      url: <logs_url>
+    name: integrations
+    positions:
+      filename: /tmp/positions.yaml
+    target_config:
+      sync_period: 10s
+prometheus:
+  configs:
+  - name: integrations
+    remote_write:
+    - basic_auth:
+        password: <pass>
+        username: <user>
+      url: <prometheus_url>
+  - name: tns
+    host_filter: false
+    scrape_configs:
+      - job_name: 'tns-db'
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['localhost:8000']
+      - job_name: 'tns-app'
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['localhost:8001']
+      - job_name: 'tns-loadgen'
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['localhost:8002']
+    remote_write:
+    - basic_auth:
+        password: <pass>
+        username: <user>
+      url: <prometheus_url>
+  global:
+    scrape_interval: 15s
+  wal_directory: /tmp/grafana-agent-wal
+server:
+  http_listen_port: 12345
+
